@@ -37,8 +37,6 @@ model Trigerd {
   type      AvailableTriggers @relation(fields: [triggerId], references: [id])
 
   zap Zap @relation(fields: [zapId], references: [id])
-
-  
 }
 
 model AvailableTriggers {
@@ -55,8 +53,8 @@ model Action {
   zap      Zap              @relation(fields: [zapId], references: [id])
   actoinId String           @unique
   type     AvailableActions @relation(fields: [actoinId], references: [id])
-  
   sortingOrder Int @default(0)
+
 }
 
 model AvailableActions {
