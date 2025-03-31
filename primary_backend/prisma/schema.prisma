@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id       Int  @id 
+  id       String @id  
   email    String  @unique
   name     String?
   password String?
@@ -28,7 +28,7 @@ model Zap {
   id        String   @id @default(cuid())
   triggerId String
   trigger   Trigerd?
-  userId    Int
+  userId    String   
  
   actions   Action[] 
   zapRuns   ZapRun[]
