@@ -7,7 +7,9 @@ import { createId } from "@paralleldrive/cuid2"; // Use a CUID generator
 const router = Router();
 //@ts-ignore
 router.post("/", authmiddleware, async (req, res) => {
-  const parsedData = ZapCreateSchema.safeParse(req.body);
+    //@ts-ignore
+    const id: string = req.id;
+    const parsedData = ZapCreateSchema.safeParse(req.body);
   if (!parsedData.success) {
     return res.status(400).json({ error: parsedData.error.errors });
   }
@@ -15,10 +17,10 @@ router.post("/", authmiddleware, async (req, res) => {
   try {
     //@ts-ignore
 
-    await client.$transaction(async (tx) => {
+   const zapId1= await client.$transaction(async (tx) => {
       const zapId = createId(); // Generate Zap ID upfront
       const triggerId = createId();
-      const id = createId(); // Generate User ID upfront
+       // Generate User ID upfront
       // Generate Trigerd ID upfront
 
       // Create Zap with the correct triggerId
@@ -34,6 +36,7 @@ router.post("/", authmiddleware, async (req, res) => {
             })),
           },
         },
+    
       });
 
       // Create Trigerd with references to Zap and AvailableTriggers
@@ -43,10 +46,13 @@ router.post("/", authmiddleware, async (req, res) => {
           triggerId: parsedData.data.avilableTriggerId, // Corrected variable name
           zapId: zapId,
         },
-      });
+      }); 
+      return zap.id;
     });
 
-    return res.status(201).json({ message: "Zap created successfully" });
+    return res.status(201).json({ message: "Zap created successfully",
+    zapId: zapId1, // Return the generated Zap ID
+     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
@@ -111,3 +117,4 @@ router.get("/:zapId",authmiddleware, async (req, res) => {
 });
 
 
+export const zapRouter = router;
