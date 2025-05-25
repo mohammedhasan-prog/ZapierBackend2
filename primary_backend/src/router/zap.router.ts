@@ -10,6 +10,7 @@ router.post("/", authmiddleware, async (req, res) => {
     //@ts-ignore
     const id: string = req.id;
     const parsedData = ZapCreateSchema.safeParse(req.body);
+    console.log("Parsed Data:", parsedData);
   if (!parsedData.success) {
     return res.status(400).json({ error: parsedData.error.errors });
   }
@@ -19,7 +20,7 @@ router.post("/", authmiddleware, async (req, res) => {
 
    const zapId1= await client.$transaction(async (tx) => {
       const zapId = createId(); // Generate Zap ID upfront
-      const triggerId = createId();
+      const triggerId = parsedData.data.avilableTriggerId; // Use the provided trigger ID
        // Generate User ID upfront
       // Generate Trigerd ID upfront
 
@@ -42,7 +43,7 @@ router.post("/", authmiddleware, async (req, res) => {
       // Create Trigerd with references to Zap and AvailableTriggers
       await tx.trigerd.create({
         data: {
-          id: triggerId, // Use pre-generated ID
+           // Use pre-generated ID
           triggerId: parsedData.data.avilableTriggerId, // Corrected variable name
           zapId: zapId,
         },

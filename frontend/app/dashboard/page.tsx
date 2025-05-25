@@ -4,7 +4,7 @@ import DarkButton from "@/components/buttons/DarkButton";
 import { useEffect } from "react";
 import axios from "axios";
 import React from "react";
-import { BACKEND_URL } from "../config";
+import { BACKEND_URL, HOOk_URL } from "../config";
 import LinkButton from "@/components/buttons/LinkButton";
 import { useRouter } from "next/navigation";
 
@@ -20,6 +20,7 @@ interface Zap {
     type: {
       id: string;
       name: string;
+      image: string;
     };
   }[];
   trigger: {
@@ -29,6 +30,7 @@ interface Zap {
     type: {
       id: string;
       name: string;
+      image: string;
     };
   };
 }
@@ -112,33 +114,61 @@ interface ZaptableProps {
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Running
             </th>
+             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              WebHook Url
+            </th>
             <th scope="col" className=" py-3  text-xs  font-medium text-gray-500 uppercase tracking-wider">
               Go
             </th>
             <th scope="col" className="px-6 py-3" />
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-200">
           {zaps.map((z, idx) => (
-            <tr key={z.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="font-semibold text-gray-800">
-                  {z.trigger.type.name}
-                </span>
-                <div className="mt-1 text-sm text-gray-600">
-                  {z.actions.map((a) => a.type.name).join(", ")}
+            <tr
+              key={z.id}
+              className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+            >
+              <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                <img
+                  src={z.trigger.type.image}
+                  alt={z.trigger.type.name}
+                  className="w-10 h-8 rounded-full"
+                />
+                <div>
+                  <div className="font-medium text-gray-800">
+                   
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {z.actions.map((a) => (
+                      <img
+                        key={a.id}
+                        src={a.type.image}
+                        alt={a.type.name}
+                        title={a.type.name}
+                        className="w-8 h-8 rounded-full bg-gray-100 p-0.5"
+                      />
+                    ))}
+                  </div>
                 </div>
               </td>
+
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                {/* Replace with dynamic date */}
+                {/* TODO: replace with dynamic date */}
                 Nov 13, 2026
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className="px-3 py-1 inline-block text-xs font-semibold rounded-full bg-green-100 text-green-800">
                   Active
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 break-all">
+                {`${HOOk_URL}/webhook/${z.id}`}
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-right">
                 <LinkButton
                   onClick={() => router.push(`/zap/${z.id}`)}
                 >

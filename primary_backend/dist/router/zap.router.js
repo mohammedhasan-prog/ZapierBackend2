@@ -21,6 +21,7 @@ router.post("/", middlerwear_1.authmiddleware, (req, res) => __awaiter(void 0, v
     //@ts-ignore
     const id = req.id;
     const parsedData = types_1.ZapCreateSchema.safeParse(req.body);
+    console.log("Parsed Data:", parsedData);
     if (!parsedData.success) {
         return res.status(400).json({ error: parsedData.error.errors });
     }
@@ -28,7 +29,7 @@ router.post("/", middlerwear_1.authmiddleware, (req, res) => __awaiter(void 0, v
         //@ts-ignore
         const zapId1 = yield index_js_1.client.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
             const zapId = (0, cuid2_1.createId)(); // Generate Zap ID upfront
-            const triggerId = (0, cuid2_1.createId)();
+            const triggerId = parsedData.data.avilableTriggerId; // Use the provided trigger ID
             // Generate User ID upfront
             // Generate Trigerd ID upfront
             // Create Zap with the correct triggerId
@@ -48,7 +49,7 @@ router.post("/", middlerwear_1.authmiddleware, (req, res) => __awaiter(void 0, v
             // Create Trigerd with references to Zap and AvailableTriggers
             yield tx.trigerd.create({
                 data: {
-                    id: triggerId, // Use pre-generated ID
+                    // Use pre-generated ID
                     triggerId: parsedData.data.avilableTriggerId, // Corrected variable name
                     zapId: zapId,
                 },

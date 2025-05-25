@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/middlerwear.ts","./src/db/index.ts","./src/router/user.router.ts","./src/router/zap.router.ts","./src/types/index.ts"],"version":"5.7.3"}
+{"root":["./src/index.ts","./src/middlerwear.ts","./src/db/index.ts","./src/router/action.router.ts","./src/router/trigger.router.ts","./src/router/user.router.ts","./src/router/zap.router.ts","./src/types/index.ts"],"version":"5.7.3"}

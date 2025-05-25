@@ -47,7 +47,7 @@ model Trigerd {
 model AvailableTriggers {
   id   String @id @default(cuid())
   name String
-
+   image String?
   Trigerd Trigerd[]
 }
 
@@ -65,7 +65,7 @@ model Action {
 model AvailableActions {
   id   String @id @default(cuid())
   name String
-
+image String?
   actions Action[]
 }
 
