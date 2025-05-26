@@ -20,5 +20,5 @@ exports.ZapCreateSchema = zod_1.default.object({
     actions: zod_1.default.array(zod_1.default.object({
         availableactionId: zod_1.default.string(),
         actionMeta: zod_1.default.any().optional(),
-    }))
+    })),
 });

@@ -34,6 +34,7 @@ router.post("/", authmiddleware, async (req, res) => {
             create: parsedData.data.actions.map((x, index) => ({
               actoinId: x.availableactionId, // Corrected field name (actoinId)
               sortingOrder: index,
+              metadata: x.actionMeta || {}, // Use actionMeta or an empty object if not provided
             })),
           },
         },
@@ -46,7 +47,8 @@ router.post("/", authmiddleware, async (req, res) => {
            // Use pre-generated ID
           triggerId: parsedData.data.avilableTriggerId, // Corrected variable name
           zapId: zapId,
-        },
+        
+        }
       }); 
       return zap.id;
     });

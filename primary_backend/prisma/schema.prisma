@@ -14,11 +14,11 @@ datasource db {
 }
 
 model User {
-  id       String @id  @default(cuid())
+  id       String  @id @default(cuid())
   email    String  @unique
   name     String?
   password String?
-  zaps   Zap[]
+  zaps     Zap[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -28,11 +28,12 @@ model Zap {
   id        String   @id @default(cuid())
   triggerId String
   trigger   Trigerd?
-  userId    String   
+  userId    String
  
-  actions   Action[] 
-  zapRuns   ZapRun[]
-   user      User     @relation(fields: [userId], references: [id])
+
+  actions Action[]
+  zapRuns ZapRun[]
+  user    User     @relation(fields: [userId], references: [id])
 }
 
 model Trigerd {
@@ -40,14 +41,15 @@ model Trigerd {
   zapId     String            @unique
   triggerId String
   type      AvailableTriggers @relation(fields: [triggerId], references: [id])
+  metadata  Json  @default("{}")
 
   zap Zap @relation(fields: [zapId], references: [id])
 }
 
 model AvailableTriggers {
-  id   String @id @default(cuid())
-  name String
-   image String?
+  id      String    @id @default(cuid())
+  name    String
+  image   String?
   Trigerd Trigerd[]
 }
 
@@ -57,15 +59,17 @@ model Action {
   zapId    String
   zap      Zap              @relation(fields: [zapId], references: [id])
   actoinId String
+  metadata  Json  @default("{}")
+
   type     AvailableActions @relation(fields: [actoinId], references: [id])
 
   sortingOrder Int @default(0)
 }
 
 model AvailableActions {
-  id   String @id @default(cuid())
-  name String
-image String?
+  id      String   @id @default(cuid())
+  name    String
+  image   String?
   actions Action[]
 }
 

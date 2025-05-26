@@ -42,6 +42,7 @@ router.post("/", middlerwear_1.authmiddleware, (req, res) => __awaiter(void 0, v
                         create: parsedData.data.actions.map((x, index) => ({
                             actoinId: x.availableactionId, // Corrected field name (actoinId)
                             sortingOrder: index,
+                            metadata: x.actionMeta || {}, // Use actionMeta or an empty object if not provided
                         })),
                     },
                 },
@@ -52,7 +53,7 @@ router.post("/", middlerwear_1.authmiddleware, (req, res) => __awaiter(void 0, v
                     // Use pre-generated ID
                     triggerId: parsedData.data.avilableTriggerId, // Corrected variable name
                     zapId: zapId,
-                },
+                }
             });
             return zap.id;
         }));

@@ -29,6 +29,7 @@ model Zap {
   triggerId String
   trigger   Trigerd?
   userId    Int
+
  
   actions   Action[] 
   zapRuns   ZapRun[]
@@ -40,6 +41,7 @@ model Trigerd {
   zapId     String            @unique
   triggerId String
   type      AvailableTriggers @relation(fields: [triggerId], references: [id])
+  metadata Json
 
   zap Zap @relation(fields: [zapId], references: [id])
 }

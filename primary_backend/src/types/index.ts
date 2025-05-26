@@ -19,6 +19,8 @@ export const SigninData = z.object({
     actions: z.array(z.object({
       availableactionId: z.string(),
       actionMeta: z.any().optional(),
-    }))
+      
+    })),
+
 
   });
