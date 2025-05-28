@@ -66,7 +66,7 @@ function main() {
                     const zapRunMetadata = zapRunDetails === null || zapRunDetails === void 0 ? void 0 : zapRunDetails.metadata;
                     console.log("Zap Run Metadata:", zapRunMetadata);
                     console.log("Current Stage Metadata:", currentStage.metadata);
-                    const body = (0, parser_1.parseZapData)((_d = currentStage.metadata) === null || _d === void 0 ? void 0 : _d.to, zapRunMetadata);
+                    const body = (0, parser_1.parseZapData)((_d = currentStage.metadata) === null || _d === void 0 ? void 0 : _d.body, zapRunMetadata);
                     console.log("Email body:", body);
                     const to = (0, parser_1.parseZapData)((_e = currentStage.metadata) === null || _e === void 0 ? void 0 : _e.to, zapRunMetadata);
                     yield (0, email_1.sendEmail)(to, body);

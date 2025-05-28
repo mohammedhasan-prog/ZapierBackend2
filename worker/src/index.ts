@@ -68,7 +68,7 @@ async function main() {
           console.log("Current Stage Metadata:", currentStage.metadata );
 
         const body = parseZapData(
-          (currentStage.metadata as JsonObject)?.to as string,
+          (currentStage.metadata as JsonObject)?.body as string,
            zapRunMetadata
         );
         console.log("Email body:", body);
