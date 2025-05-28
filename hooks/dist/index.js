@@ -35,6 +35,6 @@ app.post("/hooks/catch/:userId/:zapId", (req, res) => __awaiter(void 0, void 0, 
     }));
     res.json({ success: true });
 }));
-app.listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
+app.listen(3002, () => {
+    console.log("Server is running on http://localhost:3002");
 });

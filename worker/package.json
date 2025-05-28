@@ -11,6 +11,14 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "kafkajs": "^2.2.4"
+    "@prisma/client": "^6.8.2",
+    "@types/node-mailjet": "^3.3.12",
+    "@types/nodemailer": "^6.4.17",
+    "kafkajs": "^2.2.4",
+    "node-mailjet": "^6.0.8",
+    "nodemailer": "^7.0.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.8.2"
   }
 }

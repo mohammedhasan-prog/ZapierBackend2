@@ -26,12 +26,19 @@ function main() {
                 where: {},
                 take: 10,
             });
+            if (pendingRow.length != 0) {
+                console.log("Pending rows found:", pendingRow);
+            }
             producer.send({
                 topic: TOPIC_NAME,
-                messages: pendingRow.map((r) => ({
-                    key: r.zapRunId,
-                    value: JSON.stringify(r),
-                })),
+                messages: pendingRow.map((r) => {
+                    return {
+                        value: JSON.stringify({
+                            zapRunId: r.zapRunId,
+                            stage: 0
+                        }),
+                    };
+                }),
             });
             yield client.zapRunOutbox.deleteMany({
                 where: {
