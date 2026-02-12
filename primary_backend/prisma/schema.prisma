@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String?
+  zaps     Zap[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Zap {
+  id        String   @id @default(cuid())
+  triggerId String
+  trigger   Trigerd?
+  userId    String
+ 
+
+  actions Action[]
+  zapRuns ZapRun[]
+  user    User     @relation(fields: [userId], references: [id])
+}
+
+model Trigerd {
+  id        String            @id @default(cuid())
+  zapId     String            @unique
+  triggerId String
+  type      AvailableTriggers @relation(fields: [triggerId], references: [id])
+  metadata  Json  @default("{}")
+
+  zap Zap @relation(fields: [zapId], references: [id], onDelete: Cascade)
+}
+
+model AvailableTriggers {
+  id      String    @id @default(cuid())
+  name    String
+  image   String?
+  Trigerd Trigerd[]
+}
+
+model Action {
+  id String @id @default(cuid())
+
+  zapId    String
+  zap      Zap              @relation(fields: [zapId], references: [id], onDelete: Cascade)
+  actoinId String
+  metadata  Json  @default("{}")
+
+  type     AvailableActions @relation(fields: [actoinId], references: [id])
+
+  sortingOrder Int @default(0)
+}
+
+model AvailableActions {
+  id      String   @id @default(cuid())
+  name    String
+  image   String?
+  actions Action[]
+}
+
+model ZapRun {
+  id           String        @id @default(cuid())
+  zapId        String
+  zap          Zap           @relation(fields: [zapId], references: [id], onDelete: Cascade)
+  metadata     Json
+  zapRunOutbox ZapRunOutbox?
+}
+
+model ZapRunOutbox {
+  id       String @id @default(cuid())
+  zapRunId String @unique
+  zapRun   ZapRun @relation(fields: [zapRunId], references: [id], onDelete: Cascade)
+}

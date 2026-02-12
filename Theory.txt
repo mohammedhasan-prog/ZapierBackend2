@@ -1,0 +1,135 @@
+================================================================================
+                    DOCKER CONTAINERIZATION - THEORY & NOTES
+================================================================================
+
+1. WHAT IS CONTAINERIZATION?
+   - Packaging an application with all its dependencies into a standardized 
+     unit called a "container"
+   - Each container runs in isolation with its own filesystem, network, and 
+     process space
+   - Unlike VMs, containers share the host OS kernel — making them lightweight
+
+2. DOCKER CONCEPTS USED IN THIS PROJECT:
+
+   a) Dockerfile (Multi-Stage Build)
+      - Stage 1 (builder): Install ALL deps, compile TypeScript, generate Prisma
+      - Stage 2 (runner): Copy ONLY production files — smaller image size
+      - Why multi-stage? Dev dependencies (TypeScript, types) are ~100MB+ 
+        and not needed at runtime
+
+   b) Docker Compose
+      - Defines and runs multi-container apps from a single YAML file
+      - `depends_on` + `condition: service_healthy` ensures startup order
+      - `volumes` persist data (PostgreSQL) across container restarts
+      - Services communicate via Docker's internal DNS (e.g., "postgres", "kafka")
+
+   c) Health Checks
+      - PostgreSQL: `pg_isready` command checks if DB accepts connections
+      - Kafka: `kafka-broker-api-versions` verifies broker is ready
+      - Dependent services wait until health checks pass before starting
+
+3. ARCHITECTURE OVERVIEW:
+
+   ┌─────────────┐     ┌──────────────────┐     ┌──────────┐
+   │  Frontend   │────>│ primary_backend  │────>│ Postgres │
+   │  (Next.js)  │     │   (Express)      │<────│  (DB)    │
+   │  :3000      │     │   :3001          │     │  :5432   │
+   └─────────────┘     └──────────────────┘     └──────────┘
+                                                      ↑
+   ┌─────────────┐                                    │
+   │   Hooks     │────────────────────────────────────┘
+   │  (Express)  │
+   │  :3002      │     ┌──────────┐
+   └─────────────┘     │  Kafka   │
+                       │  :9092   │
+   ┌─────────────┐     │          │     ┌──────────┐
+   │  Processer  │────>│          │<────│  Worker  │
+   │  (Outbox    │     └──────────┘     │  (Consumer│
+   │   Poller)   │          ↑           │  + Email) │
+   └─────────────┘     ┌────┴─────┐     └──────────┘
+                       │Zookeeper │
+                       │  :2181   │
+                       └──────────┘
+
+4. KEY PATTERNS:
+
+   a) Transactional Outbox Pattern (Processer)
+      - Hooks writes to ZapRun + ZapRunOutbox in a DB transaction
+      - Processer polls ZapRunOutbox, publishes to Kafka, deletes from outbox
+      - Guarantees at-least-once delivery without two-phase commits
+
+   b) Event-Driven Processing (Worker)
+      - Consumes messages from Kafka topic "zap-events"
+      - Processes each action stage sequentially
+      - Sends next stage back to Kafka for pipeline processing
+
+5. ENVIRONMENT VARIABLES:
+
+   DATABASE_URL        → PostgreSQL connection string (shared by all backend services)
+   JWT_SECRET          → JWT signing secret (primary_backend auth)
+   KAFKA_BROKER        → Kafka broker address (processer + worker)
+   MAILJET_API_KEY     → Email service API key (worker)
+   MAILJET_API_SECRET  → Email service API secret (worker)
+   NEXT_PUBLIC_*       → Build-time vars inlined into Next.js client bundle
+
+6. DOCKER COMMANDS:
+
+   docker compose up --build       → Build and start all services
+   docker compose down             → Stop and remove all containers
+   docker compose logs -f worker   → Follow logs for a specific service
+   docker compose ps               → List running containers
+   docker compose exec postgres psql -U zapier -d zapierdb  → Connect to DB
+
+7. PORT MAPPING:
+
+   Host Port  →  Container  →  Service
+   3000       →  3000       →  Frontend (Next.js)
+   3001       →  3000       →  primary_backend (Express)
+   3002       →  3002       →  Hooks (Express)
+   5432       →  5432       →  PostgreSQL
+   9092       →  9092       →  Kafka
+
+8. NEXT.JS STANDALONE MODE:
+   - `output: "standalone"` in next.config.mjs
+   - Produces a self-contained `server.js` that bundles everything needed
+   - No need for node_modules in production container
+   - NEXT_PUBLIC_* vars are inlined at BUILD TIME, not runtime
+   - That's why we use Docker build ARGs to pass them during `docker build`
+
+9. TROUBLESHOOTING:
+
+   a) "Cannot find module 'next/navigation'":
+      - Cause: Dependencies were not installed (missing node_modules).
+      - Fix: Run `npm install` in the frontend directory.
+      - Context: This error is common when setting up the project freshly.
+
+   b) CORS Middleware Order:
+      - Cause: `app.use(cors())` was placed AFTER `app.use(express.json())` or routes.
+      - Effect: Preflight (OPTIONS) requests fail or are blocked, causing `ERR_EMPTY_RESPONSE` or `Network Error`.
+      - Fix: Always place `app.use(cors())` as the VERY FIRST middleware in `index.ts`.
+
+
+10. NEXT.JS DYNAMIC ROUTES:
+
+   a) File Structure:
+      - `app/zap/[zapId]/page.tsx` handles routes like `/zap/clz...`.
+      - Bracket syntax `[folderName]` defines a dynamic segment.
+
+   b) Client-Side Access:
+      - `useParams()` from `next/navigation` retrieves the dynamic value.
+      - Example: `const { zapId } = useParams();`
+
+11. PRISMA SEEDING & ASSETS:
+
+   a) Seed Script (`prisma/seed.ts`):
+      - Uses `upsert` (Update or Insert) to ensure idempotency.
+      - Allows running the seed script multiple times without duplicate errors.
+      - Essential for populating "static" data like Triggers and Actions.
+
+   b) Asset Stability:
+      - NEVER use Google Image Search result URLs (e.g., `encrypted-tbn0...`).
+      - They are temporary and will expire/break.
+      - Use stable, public CDNs (e.g., Flaticon, CryptoLogos, or S3) for persistent images.
+
+================================================================================
+
